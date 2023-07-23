@@ -6,7 +6,7 @@ const DashFooter = () => {
     const navigate=useNavigate()
     const {pathname}=useLocation()
 
-    const onGoHomeClicked=()=>navigate('/')
+    const onGoHomeClicked=()=>navigate('/dash')
 
     let goHomeButton=null
     if(pathname!=='/dash'){

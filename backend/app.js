@@ -10,7 +10,7 @@ const corsOptions = require('./config/corsOptions')
 const mongoose = require('mongoose')
 const homepage = require('./routes/rootRoute')
 const routes=require('./routes/routes')
-
+const authRoutes=require('./routes/authRoutes')
 
 
 app.use(logger)
@@ -26,6 +26,7 @@ app.use(express.static(path.join(__dirname,'/public')))
 
 app.use('/',homepage)
 app.use('/api',routes)
+app.use('/auth',authRoutes)
 
 app.all('*',(req,res)=>{
     res.status(404)
