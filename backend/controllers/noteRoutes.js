@@ -7,12 +7,12 @@ const getNotes=asyncHandler(async(req,res)=>{
     const notes=await Note.find({}).lean()
     if (!notes){
         return res.status(400).json({
-            status: "An error occured while fetching notes"
+            message: "An error occured while fetching notes"
         })
     }
     if (notes.length===0){
         return res.status(404).json({
-            status: "No notes to display"
+            message: "No notes to display"
         })
     }
     res.status(200).json(notes)
@@ -22,32 +22,32 @@ const addNote=asyncHandler(async(req,res)=>{
     console.log(req.body)
     if(!user||!title||!text){
         return res.status(400).json({
-            status:"Please ensure all fields are filled"
+            message:"Please ensure all fields are filled"
         })
     }
     if (!mongoose.isValidObjectId(user)) {
-        return res.status(400).json({ status: "Invalid user id" });
+        return res.status(400).json({ message: "Invalid user id" });
       }
     const checkUser=await User.findById(user).lean().exec()
     console.log(checkUser)
 
     if(!checkUser){
         return res.status(404).json({
-            status:"The user being assigned the note does not exist"
+            message:"The user being assigned the note does not exist"
         })
     }
     
     const newNote=await Note.create({user,title,text})
     if(newNote){
         res.status(201).json({
-            status:"New Note created successfully",
+            message:"New Note created successfully",
             reply:`Note assigned to ${checkUser.username}`,
             newNote:newNote
         })
         
     }else{
         return res.status(500).json({
-            status:"Error while creating the Note"
+            message:"Error while creating the Note"
         })
     }
     

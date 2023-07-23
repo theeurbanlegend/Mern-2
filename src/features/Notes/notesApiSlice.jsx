@@ -2,7 +2,9 @@ import { createSelector,createEntityAdapter } from "@reduxjs/toolkit";
 
 import { apiSlice } from "../../app/api/apiSlice";
 
-const notesAdapter=createEntityAdapter({})
+const notesAdapter=createEntityAdapter({
+    sortComparer:(a,b)=>(a.completed ===b.completed)?0:a.completed?1:-1
+})
 const initialState=notesAdapter.getInitialState()
 
  export const notesApiSlice= apiSlice.injectEndpoints({
@@ -10,10 +12,13 @@ const initialState=notesAdapter.getInitialState()
         getNotes:builder.query({
             query:()=>'./api/notes',
             validateStatus:(response,result)=>{
-                return response.status===200 && !result.isError
+                return (response.status===200||response.status===404) && !result.isError
             },
-            keepUnusedDataFor: 5,
+            
             transformResponse:responseData=>{
+                if (Array.isArray(responseData) && responseData.length === 0) {
+                    // If the response contains an empty array, set error in the result
+                    return { error: { message: "No notes to display" } };}
                 const loadedNotes=responseData.map(note=>{
                     note.id=note._id
                     return note
@@ -22,16 +27,51 @@ const initialState=notesAdapter.getInitialState()
             },
             providesTags:(result,error,arg)=>{
                 if(result?.ids){
+                    
                     return [
                         {type:'Note',id:'LIST'},
                         ...result.ids.map(id=>({type: 'Note',id}))
                     ]
                 }else return [{type:'Note', id:'LIST'}]
             }
+        }),
+        addNewNote: builder.mutation({
+            query:initialNoteData=>({
+                url:'/api/notes',
+                method:'POST',
+                body:{
+                    ...initialNoteData
+                }
+            }),
+            invalidatesTags:[
+                {type: 'Note', id:'LIST'}
+            ]
+        }),
+        updateNote: builder.mutation({
+            query:initialNoteData=>({
+                url:'/api/notes',
+                method:'PATCH',
+                body:{
+                    ...initialNoteData,
+                }
+            }),
+            invalidatesTags:(result,error,arg)=>[
+                {type: 'Note', id: arg.id}
+            ]
+        }),
+        deleteNote: builder.mutation({
+            query:({id})=>({
+                url:'/api/notes',
+                method:'DELETE',
+                body:{id}
+            }),
+            invalidatesTags:(result,error,arg)=>[
+                {type: 'Note', id: arg.id}
+            ]
         })
     })
  })
-export const {useGetNotesQuery}=notesApiSlice
+export const {useGetNotesQuery,useAddNewNoteMutation,useUpdateNoteMutation,useDeleteNoteMutation}=notesApiSlice
 
 // return the query result object
 

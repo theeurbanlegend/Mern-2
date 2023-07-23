@@ -6,13 +6,15 @@ const Welcome = () => {
     const today = new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'long' }).format(date)
 
     
-console.log('Welcome')
+
     return (
         <section className="welcome">
             <p>{today}</p>
             <h1>Welcome!</h1>
             <p><Link to="/dash/notes">View techNotes</Link></p>
+            <p><Link to="/dash/notes/new">Add new TechNote</Link></p>
             <p><Link to="/dash/users">View User Settings</Link></p>
+            <p><Link to="/dash/users/new">Add new User</Link></p>
         </section>
     )
     }
